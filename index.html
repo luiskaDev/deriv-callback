@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Conectando con Scalper Keybot…</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 42rem; margin: 12vh auto; padding: 0 1.25rem; color: #17212b; }
+    .card { border: 1px solid #d7dce2; border-radius: 12px; padding: 1.5rem; box-shadow: 0 3px 18px #00000012; }
+    .error { color: #a51d2d; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1 id="title">Conectando con el bot…</h1>
+    <p id="message">No cierres esta ventana.</p>
+  </main>
+  <script>
+    (() => {
+      const params = new URLSearchParams(window.location.search);
+      const title = document.getElementById('title');
+      const message = document.getElementById('message');
+      const error = params.get('error');
+      const code = params.get('code');
+      const state = params.get('state');
+
+      if (error) {
+        title.textContent = 'Autorización no completada';
+        title.className = 'error';
+        message.textContent = params.get('error_description') || error;
+        return;
+      }
+      if (!code || !state) {
+        title.textContent = 'Faltan datos de autorización';
+        message.textContent = 'Vuelve a iniciar el proceso desde el bot.';
+        return;
+      }
+
+      // Deriv redirige primero a esta URL HTTPS. El código se entrega de
+      // inmediato al servidor temporal del bot; PKCE impide su reutilización.
+      const localCallback = new URL('http://127.0.0.1:8765/callback');
+      localCallback.searchParams.set('code', code);
+      localCallback.searchParams.set('state', state);
+      window.location.replace(localCallback.toString());
+    })();
+  </script>
+</body>
+</html>
